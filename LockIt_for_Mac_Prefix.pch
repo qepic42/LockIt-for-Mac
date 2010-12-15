@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'LockIt for Mac' target in the 'LockIt for Mac' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
