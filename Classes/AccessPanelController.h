@@ -32,8 +32,9 @@
 	NSWindow *lockWindow;
 }
 - (void)displayRequestPanel:(NSNotification *)notification;
--(void)setHostUUID:(NSNotification *)notification;
--(void)getHostUUID;
+//-(void)setHostUUID:(NSNotification *)notification;
+//-(void)getHostUUID;
+-(void)setHostUUID;
 
 - (IBAction)requestWindowPushAllow:(id)sender;
 - (IBAction)requestWindowPushDeny:(id)sender;

@@ -13,40 +13,78 @@
 #import "NetworkService.h"
 #import "DataModel.h"
 @implementation LockItHTTPConnection
-@synthesize commandString, lockDelayString, lockedUUID, hostUUID, macIsLocked;
+@synthesize commandString, lockDelayString, lockedUUID, uuid, macIsLocked;
 
 - (id)init {
     if ((self = [super init])) {
         
-        self.hostUUID = [self setHostUUID];
+   //     [self getHostUUID];
+        self.uuid = [self setHostUUID];
+        
+        NSLog(@"HTTP.Connection: init");
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(sendCommands:)
 													 name:@"returnTargetDict"
 												   object:nil];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(sendCommands:)
-													 name:@"getUUID"
-												   object:nil];
+ /*       [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(setHostUUID)
+													 name:@"broadcastUUID"
+												   object:nil]; */
+        
+        
     }
     return self;
 }
 
--(NSString *)setHostUUID{
-    NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    return string;
+/*
+-(void)setHostUUID:(NSNotification *)notification{
+    NSLog(@"set Host UUID");
+    self.uuid = [[notification userInfo]objectForKey:@"uuid"];
 }
 
--(void)sendUUID{
-    NSDictionary *dict = [NSDictionary dictionaryWithObject:self.hostUUID forKey:@"uuid"];
-    
+-(void)getHostUUID{
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:@"setUUID"
-                          object:self
-                        userInfo:dict];
+    [center postNotificationName:@"getUUID"
+                          object:self];
+}
+*/
+
+-(NSString *)setHostUUID{
+    NSTask *getUUID;
+    getUUID = [[NSTask alloc] init];
+    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
+    
+    // speichern des aktuellen stdout
+    id defaultStdOut = [getUUID standardOutput];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [getUUID setStandardOutput: pipe];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [getUUID launch];
+    
+    NSData *data;
+    data = [file readDataToEndOfFile];
+    
+    NSString *cache;
+    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    
+    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    
+    // setzen des ursprünglichen stdouts
+    [getUUID setStandardOutput:defaultStdOut];
+    
+    // und Aufräumen nicht vergessen
+    [getUUID release];
+    [cache release];
+    
+    return string;
 }
 
 - (BOOL)supportsMethod:(NSString *)method atPath:(NSString *)path
@@ -94,15 +132,16 @@
  * Overrides HTTPConnection's method
  **/
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path{
-	
-    self.hostUUID = [self setHostUUID];
+    
+ //  [self getHostUUID];   
+    self.uuid = [self setHostUUID];
     
     NSString *error = nil;
 	HTTPDataResponse* response = nil;
 	
 	NSString *command = [path substringFromIndex:1];
     NSArray *listItems = [path componentsSeparatedByString:@"/"];
-    NSString *uuid = [listItems objectAtIndex:1];
+    NSString *clientUUID = [listItems objectAtIndex:2];
     
     self.commandString = command;
     self.lockDelayString = [listItems objectAtIndex:2];
@@ -115,14 +154,13 @@
     NSRange isLocked = [self.commandString  rangeOfString:@"identify"];
     if  (isLocked.location != NSNotFound){
         
-        
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         self.macIsLocked = [prefs boolForKey:@"lockState"];
         
      //   NSLog(@"BOOL = %d", (int)self.macIsLocked);
         
         [dict setObject:[NSNumber numberWithBool:self.macIsLocked] forKey:@"lockState"];
-        [dict setObject:self.hostUUID
+        [dict setObject:self.uuid
 				 forKey:@"uuid"];
         
     }else{
@@ -132,7 +170,7 @@
         [prefs setObject:self.lockDelayString forKey:@"lockDelayString"];
         [prefs synchronize];
         
-        NSDictionary *uuidDict = [NSDictionary dictionaryWithObject:uuid forKey:@"uuid"];
+        NSDictionary *uuidDict = [NSDictionary dictionaryWithObject:clientUUID forKey:@"uuid"];
         
         NSNotificationCenter * center;
         center = [NSNotificationCenter defaultCenter];
@@ -251,7 +289,7 @@
 
 
 - (void)dealloc {
-    [hostUUID release];
+    [uuid release];
     [lockedUUID release];
     [lockDelayString release];
     [commandString release];

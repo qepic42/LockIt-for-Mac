@@ -12,11 +12,12 @@
     NSMutableArray *searchArray;
     NSMutableData *response;
     NSDictionary *devInfoDict;
-    
+    NSString *uuid;
     NSURLConnection *connection;
     
 }
 
+@property (nonatomic, retain) NSString *uuid;
 @property (nonatomic, retain) NSMutableData *response;
 @property (retain, nonatomic) NSMutableArray *dataArray;
 @property (retain,nonatomic) NSMutableArray *searchArray;
@@ -25,5 +26,7 @@
 -(void)addDevice:(NSNotification *)notification;
 -(void)removeDevice:(NSNotification *)notification;
 -(void)getDeviceFromUUID:(NSNotification *)notification;
+-(NSString *)setHostUUID;
+-(void)sendUUID;
 
 @end

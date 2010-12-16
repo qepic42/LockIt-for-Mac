@@ -10,15 +10,15 @@
 #import "LockItHTTPConnection.h"
 
 @implementation DataModel
-@synthesize dataArray, response, devInfoDict, searchArray;
+@synthesize dataArray, response, devInfoDict, searchArray, uuid;
 
 
 - (id)init {
     if ((self = [super init])) {
         // Initialization code here.
-        
         self.dataArray = [[NSMutableArray alloc]init];
         
+        self.uuid = [self setHostUUID];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(addDevice:)
@@ -40,10 +40,68 @@
                                                      name:@"getAllClients"
                                                    object:nil];
         
+ /*       [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(sendUUID)
+													 name:@"getUUID"
+												   object:nil]; */
+        
     }
     
     return self;
 }
+
+-(NSString *)setHostUUID{
+    NSTask *getUUID;
+    getUUID = [[NSTask alloc] init];
+    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
+    
+    // speichern des aktuellen stdout
+    id defaultStdOut = [getUUID standardOutput];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [getUUID setStandardOutput: pipe];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [getUUID launch];
+    
+    NSData *data;
+    data = [file readDataToEndOfFile];
+    
+    NSString *cache;
+    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    
+    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    
+    // setzen des ursprünglichen stdouts
+    [getUUID setStandardOutput:defaultStdOut];
+    
+    // und Aufräumen nicht vergessen
+    [getUUID release];
+    [cache release];
+    
+    return string;
+}
+
+/*
+-(NSString *)setHostUUID{
+    NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    return string;
+}
+
+-(void)sendUUID:(NSNotification *)notification{
+    NSDictionary *dict = [NSDictionary dictionaryWithObject:self.uuid forKey:@"uuid"];
+    NSLog(@"SELF.HOSTUUID: %@",self.uuid);
+    NSNotificationCenter * center;
+    center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:@"broadcastUUID"
+                          object:self
+                        userInfo:dict];
+}
+ */
 
 - (void)addDevice:(NSNotification *)notification{
     
@@ -90,7 +148,7 @@
 
 
 - (void)getDeviceFromUUID:(NSNotification *)notification{ 
-    
+
     NSString *UUID =  [[notification userInfo] valueForKey:@"uuid"];
     
     devInfoDict = [[NSDictionary alloc]init];
@@ -106,13 +164,12 @@
         NSNumber *deviceStartLockTime = [currentDict objectForKey:@"deviceStartLockTime"];
         
         if([deviceUUID isEqualToString:UUID]){
-        
             devInfoDict = [NSDictionary dictionaryWithObjectsAndKeys:deviceName, @"deviceName", deviceHostName, @"deviceHostname", devicePort, @"devicePort", deviceUUID, @"deviceUUID", deviceStartLockTime, @"deviceStartLockTime", nil];
             
             break;
             
         }else{
-            
+            NSLog(@"UUIDs: \n%@\n%@",deviceUUID, UUID);
             continue;
             
         }
@@ -136,6 +193,7 @@
 - (void)dealloc {
     // Clean-up code here.
     
+    [uuid release];
     [connection release];
     [devInfoDict release];
     [searchArray release];

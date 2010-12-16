@@ -15,7 +15,7 @@
     NSString *commandString;
     NSString *lockDelayString;
     NSString *lockedUUID;
-    NSString *hostUUID;
+    NSString *uuid;
     BOOL macIsLocked;
     
     DataModel *dataModel;
@@ -25,10 +25,12 @@
 @property (nonatomic,retain)NSString *commandString;
 @property (nonatomic,retain)NSString *lockDelayString;
 @property (nonatomic,retain)NSString *lockedUUID;
-@property (nonatomic,retain)NSString *hostUUID;
+@property (nonatomic,retain)NSString *uuid;
 @property BOOL macIsLocked;
 
--(NSString *)setHostUUID;
 -(void)sendCommands:(NSNotification *)notification;
+//-(void)setHostUUID:(NSNotification *)notification;
+//-(void)getHostUUID;
+-(NSString *)setHostUUID;
 
 @end

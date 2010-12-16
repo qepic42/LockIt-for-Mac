@@ -19,16 +19,17 @@
 	self = [super init];
 	if (self != nil) {
         
-        [self getHostUUID];
+//        [self getHostUUID];
+        self.uuid = [self setHostUUID];
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(displayRequestPanel:)
 													 name:@"deviceSentRequest"
 												   object:nil];
-        
+ /*       
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(setHostUUID)
-													 name:@"setUUID"
-												   object:nil];
+													 name:@"broadcastUUID"
+												   object:nil]; */
 	}
 	return self;
 }
@@ -43,7 +44,9 @@
     [super dealloc];
 }
 
+/*
 -(void)setHostUUID:(NSNotification *)notification{
+    NSLog(@"set Host UUID");
     self.uuid = [[notification userInfo]objectForKey:@"uuid"];
 }
 
@@ -52,6 +55,41 @@
     center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"getUUID"
                           object:self];
+}
+ */
+-(NSString *)setHostUUID{
+    NSTask *getUUID;
+    getUUID = [[NSTask alloc] init];
+    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
+    
+    // speichern des aktuellen stdout
+    id defaultStdOut = [getUUID standardOutput];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [getUUID setStandardOutput: pipe];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [getUUID launch];
+    
+    NSData *data;
+    data = [file readDataToEndOfFile];
+    
+    NSString *cache;
+    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    
+    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    
+    // setzen des ursprünglichen stdouts
+    [getUUID setStandardOutput:defaultStdOut];
+    
+    // und Aufräumen nicht vergessen
+    [getUUID release];
+    [cache release];
+    
+    return string;
 }
 
 - (void)displayRequestPanel:(NSNotification *)notification{
@@ -113,6 +151,7 @@
     self.deviceLockDelay = [[notification userInfo] valueForKey:@"deviceStartLockTime"];
     self.devicePort = [[notification userInfo]valueForKey:@"devicePort"];
     
+    NSLog(@"Data: %@:%@",self.deviceName, self.devicePort);
     
 	NSString *request = [NSString stringWithFormat:@"%@ »%@« %@", @"Device", self.deviceName, @"want to get access of this Mac.\nIf you'll allow it can lock and unlock this Mac everytime."];
 	
