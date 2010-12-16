@@ -13,7 +13,6 @@
 @private
     
     BOOL macIsLocked;
-    int hostUUID;
     
 	NSString *UUID;
 	
@@ -25,7 +24,6 @@
     
 }
 
-@property int hostUUID;
 @property BOOL macIsLocked;
 @property (nonatomic,retain)NSString *UUID;
 @property (nonatomic,retain)NSString *deviceName;
@@ -34,7 +32,8 @@
 @property (nonatomic,retain)NSNumber *devicePort;
 @property (nonatomic,retain)NSNumber *deviceLockDelay;
 
--(NSString *)setHostUUID;
+-(void)setHostUUID:(NSNotification *)notification;
+-(void)getHostUUID;
 -(void)getLockState:(NSNotification *)notification;
 -(void)setLockState:(NSNotification *)notification;
 -(void)sendLockState:(NSNotification *)notification;

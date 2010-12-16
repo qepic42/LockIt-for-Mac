@@ -27,7 +27,8 @@
 @property (nonatomic,retain)NSNetService *otherSender;
 @property (nonatomic,retain)NSString *uuid;
 
--(NSString *)setHostUUID;
+-(void)setHostUUID:(NSNotification *)notification;
+-(void)getHostUUID;
 -(void)sendGrowlNotifications:(NSString *)title: (NSString *)dexcription: (NSString *)notificationName;
 
 @end

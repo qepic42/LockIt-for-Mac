@@ -17,13 +17,18 @@
 - (id) init {
 	self = [super init];
 	if (self != nil) {
-        self.uuid = [self setHostUUID];
+        [self getHostUUID];
 		serviceBrowser = [[NSNetServiceBrowser alloc] init];
 		[serviceBrowser setDelegate:self];
 		[serviceBrowser searchForServicesOfType:@"_lockitiphone._tcp." inDomain:@""];
 		self.response = [NSMutableData data];
         
         [GrowlApplicationBridge setGrowlDelegate:self];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(setHostUUID)
+													 name:@"setUUID"
+												   object:nil];
 		
 	}
 	return self;
@@ -66,38 +71,15 @@
     return tempImage;
 }
 
--(NSString *)setHostUUID{
-  /*  NSTask *getUUID;
-    getUUID = [[NSTask alloc] init];
-    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
-    
-    
-    //--------------------------->>>
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [getUUID setStandardOutput: pipe];
-    //<<<-----------------------------
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [getUUID launch];
-    
-    NSData *data;
-    data = [file readDataToEndOfFile];
-    
-    NSString *cache;
-    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-    
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    
-    [pipe release];
-    [getUUID terminate];
-    
-    return string;*/
-    NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    return string;
+-(void)setHostUUID:(NSNotification *)notification{
+    self.uuid = [[notification userInfo]objectForKey:@"uuid"];
+}
+
+-(void)getHostUUID{
+    NSNotificationCenter * center;
+    center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:@"getUUID"
+                          object:self];
 }
  
 - (void) dealloc {
