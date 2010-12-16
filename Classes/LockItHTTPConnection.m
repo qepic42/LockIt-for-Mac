@@ -29,30 +29,39 @@
 }
 
 -(NSString *)setHostUUID{
-    NSTask *getUUID;
-	getUUID = [[NSTask alloc] init];
-	[getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
-	
-	NSPipe *pipe;
-	pipe = [NSPipe pipe];
-	[getUUID setStandardOutput: pipe];
-	
-	NSFileHandle *file;
-	file = [pipe fileHandleForReading];
-	
-	[getUUID launch];
-	
-	NSData *data;
-	data = [file readDataToEndOfFile];
-	
-	NSString *cache;
-	cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+/*    NSTask *getUUID;
+    getUUID = [[NSTask alloc] init];
+    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
+    
+    
+    //--------------------------->>>
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [getUUID setStandardOutput: pipe];
+    //<<<-----------------------------
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [getUUID launch];
+    
+    NSData *data;
+    data = [file readDataToEndOfFile];
+    
+    NSString *cache;
+    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
     
     NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
+    [pipe release];
+    [getUUID terminate];
+    
+    return string;
+ */
+    NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     return string;
 }
-
 
 - (BOOL)supportsMethod:(NSString *)method atPath:(NSString *)path
 {

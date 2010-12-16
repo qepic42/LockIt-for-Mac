@@ -66,7 +66,6 @@
         if([[currentDict objectForKey:@"deviceName"] isEqualTo:[deviceInfoDict objectForKey:@"deviceName"]]){
             position = [self.dataArray indexOfObject:currentDict];
             
-            NSLog(@"Remove Device: %@",[currentDict objectForKey:@"deviceName"]);
             break;
         }
         

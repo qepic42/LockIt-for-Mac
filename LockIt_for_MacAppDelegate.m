@@ -25,7 +25,6 @@
 	self = [super init];
 	if (self != nil) {
 		[self applicationDidFinishLaunching:nil];
-        NSLog(@"manueller Start");
 	}
 	return self;
 }
@@ -33,21 +32,13 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-    NSLog(@"Klassen mit alloc&init starten…");
 	dataModel = [[DataModel alloc]init];
-    NSLog(@"DataModel: fertig…");
     windowCtrl = [[AccessPanelController alloc]init];
-    NSLog(@"AccessPanelController: fertig…");
     prefModel = [[PreferencesModel alloc]init];
-    NSLog(@"PreferencesModel: fertig…");
     lockState = [[LockState alloc]init];
-    NSLog(@"LockState: fertig…");
 	netService = [[NetworkService alloc]init];
-    NSLog(@"NetworkService: fertig…");
 	httpServer = [[HTTPServer alloc] init];
-    NSLog(@"HTTPServer: fertig…");
 	[httpServer setType:@"_lockitmac._tcp."];
-    NSLog(@"Alles: fertig");
 	[httpServer setConnectionClass:[LockItHTTPConnection class]];
 	NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Web"];
 	[httpServer setDocumentRoot:[NSURL fileURLWithPath:webPath]];
