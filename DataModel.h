@@ -27,6 +27,6 @@
 -(void)removeDevice:(NSNotification *)notification;
 -(void)getDeviceFromUUID:(NSNotification *)notification;
 -(NSString *)setHostUUID;
--(void)sendUUID;
+-(void)sendUUID:(NSNotification *)notification;
 
 @end

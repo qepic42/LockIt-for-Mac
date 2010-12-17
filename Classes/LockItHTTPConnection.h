@@ -29,8 +29,7 @@
 @property BOOL macIsLocked;
 
 -(void)sendCommands:(NSNotification *)notification;
-//-(void)setHostUUID:(NSNotification *)notification;
-//-(void)getHostUUID;
--(NSString *)setHostUUID;
+-(void)setHostUUID:(NSNotification *)notification;
+-(void)getHostUUID;
 
 @end

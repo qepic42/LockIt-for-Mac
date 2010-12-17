@@ -26,7 +26,7 @@
         [GrowlApplicationBridge setGrowlDelegate:self];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(setHostUUID)
+												 selector:@selector(setHostUUID:)
 													 name:@"setUUID"
 												   object:nil];
 		
@@ -73,6 +73,7 @@
 
 -(void)setHostUUID:(NSNotification *)notification{
     self.uuid = [[notification userInfo]objectForKey:@"uuid"];
+    NSLog(@"Net- UUID: %@",self.uuid);
 }
 
 -(void)getHostUUID{

@@ -40,10 +40,10 @@
                                                      name:@"getAllClients"
                                                    object:nil];
         
- /*       [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(sendUUID)
+        [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(sendUUID:)
 													 name:@"getUUID"
-												   object:nil]; */
+												   object:nil]; 
         
     }
     
@@ -51,57 +51,22 @@
 }
 
 -(NSString *)setHostUUID{
-    NSTask *getUUID;
-    getUUID = [[NSTask alloc] init];
-    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
-    
-    // speichern des aktuellen stdout
-    id defaultStdOut = [getUUID standardOutput];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [getUUID setStandardOutput: pipe];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [getUUID launch];
-    
-    NSData *data;
-    data = [file readDataToEndOfFile];
-    
-    NSString *cache;
-    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-    
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    
-    // setzen des ursprünglichen stdouts
-    [getUUID setStandardOutput:defaultStdOut];
-    
-    // und Aufräumen nicht vergessen
-    [getUUID release];
-    [cache release];
-    
-    return string;
-}
-
-/*
--(NSString *)setHostUUID{
     NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
     NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     return string;
 }
 
 -(void)sendUUID:(NSNotification *)notification{
+     NSLog(@"Data- UUID: %@",self.uuid);
     NSDictionary *dict = [NSDictionary dictionaryWithObject:self.uuid forKey:@"uuid"];
-    NSLog(@"SELF.HOSTUUID: %@",self.uuid);
+   
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"broadcastUUID"
                           object:self
                         userInfo:dict];
 }
- */
+
 
 - (void)addDevice:(NSNotification *)notification{
     

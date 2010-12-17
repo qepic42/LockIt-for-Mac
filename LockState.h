@@ -32,9 +32,8 @@
 @property (nonatomic,retain)NSNumber *devicePort;
 @property (nonatomic,retain)NSNumber *deviceLockDelay;
 
-//-(void)setHostUUID:(NSNotification *)notification;
-//-(void)getHostUUID;
--(void)setHostUUID;
+-(void)setHostUUID:(NSNotification *)notification;
+-(void)getHostUUID;
 -(void)getLockState:(NSNotification *)notification;
 -(void)setLockState:(NSNotification *)notification;
 -(void)sendLockState:(NSNotification *)notification;

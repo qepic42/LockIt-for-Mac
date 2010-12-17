@@ -19,17 +19,16 @@
 	self = [super init];
 	if (self != nil) {
         
-//        [self getHostUUID];
-        self.uuid = [self setHostUUID];
+        [self getHostUUID];
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(displayRequestPanel:)
 													 name:@"deviceSentRequest"
 												   object:nil];
- /*       
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(setHostUUID)
+												 selector:@selector(setHostUUID:)
 													 name:@"broadcastUUID"
-												   object:nil]; */
+												   object:nil]; 
 	}
 	return self;
 }
@@ -44,9 +43,8 @@
     [super dealloc];
 }
 
-/*
+
 -(void)setHostUUID:(NSNotification *)notification{
-    NSLog(@"set Host UUID");
     self.uuid = [[notification userInfo]objectForKey:@"uuid"];
 }
 
@@ -56,41 +54,7 @@
     [center postNotificationName:@"getUUID"
                           object:self];
 }
- */
--(NSString *)setHostUUID{
-    NSTask *getUUID;
-    getUUID = [[NSTask alloc] init];
-    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
-    
-    // speichern des aktuellen stdout
-    id defaultStdOut = [getUUID standardOutput];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [getUUID setStandardOutput: pipe];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [getUUID launch];
-    
-    NSData *data;
-    data = [file readDataToEndOfFile];
-    
-    NSString *cache;
-    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-    
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    
-    // setzen des ursprünglichen stdouts
-    [getUUID setStandardOutput:defaultStdOut];
-    
-    // und Aufräumen nicht vergessen
-    [getUUID release];
-    [cache release];
-    
-    return string;
-}
+
 
 - (void)displayRequestPanel:(NSNotification *)notification{
     

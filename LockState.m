@@ -15,7 +15,7 @@
     if ((self = [super init])) {
         // Initialization code here.
         
-		[self getHostUUID];
+        [self getHostUUID];
 		
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(getLockState:)
@@ -42,10 +42,10 @@
 													 name:@"sendAllClients"
 												   object:nil];
         
-/*        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(setHostUUID)
+        [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(setHostUUID:)
 													 name:@"broadcastUUID"
-												   object:nil]; */
+												   object:nil]; 
 
         
     }
@@ -53,7 +53,7 @@
     return self;
 }
 
-/*
+
 -(void)setHostUUID:(NSNotification *)notification{
     self.UUID = [[notification userInfo]objectForKey:@"uuid"];
 }
@@ -63,42 +63,6 @@
     center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"getUUID"
                           object:self];
-}
-*/
-
--(NSString *)setHostUUID{
-    NSTask *getUUID;
-    getUUID = [[NSTask alloc] init];
-    [getUUID setLaunchPath: [[NSBundle mainBundle] pathForResource:@"getUUID" ofType:@"sh"]];
-    
-    // speichern des aktuellen stdout
-    id defaultStdOut = [getUUID standardOutput];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [getUUID setStandardOutput: pipe];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [getUUID launch];
-    
-    NSData *data;
-    data = [file readDataToEndOfFile];
-    
-    NSString *cache;
-    cache = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-    
-    NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    
-    // setzen des ursprünglichen stdouts
-    [getUUID setStandardOutput:defaultStdOut];
-    
-    // und Aufräumen nicht vergessen
-    [getUUID release];
-    [cache release];
-    
-    return string;
 }
 
 -(void)getLockState:(NSNotification *)notification{
