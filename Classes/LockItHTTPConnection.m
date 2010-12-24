@@ -102,13 +102,16 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(setHostUUID:)
-                                                 name:@"broadcastUUID"
+                                                 name:@"recieveUUID"
                                                object:nil]; 
     
+    while (self.uuid == 0){
+        NSLog(@"UUID FAIL");
+      [self getHostUUID];  
+    }
     
-    [self getHostUUID]; 
     
- //   NSLog(@"Host UUID: %@!",self.uuid);
+    NSLog(@"Host UUID: %@!",self.uuid);
     
    
     NSString *error = nil;
@@ -135,8 +138,7 @@
      //   NSLog(@"BOOL = %d", (int)self.macIsLocked);
         
         [dict setObject:[NSNumber numberWithBool:self.macIsLocked] forKey:@"lockState"];
-        [dict setObject:self.uuid
-				 forKey:@"uuid"];
+        [dict setObject:self.uuid forKey:@"uuid"];
         
     }else{
         

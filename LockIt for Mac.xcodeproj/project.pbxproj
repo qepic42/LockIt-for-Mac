@@ -18,6 +18,8 @@
 		100A735312586EFD00F229AB /* HTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 100A734612586EFD00F229AB /* HTTPServer.m */; };
 		100A735412586EFD00F229AB /* SSCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 100A734812586EFD00F229AB /* SSCrypto.m */; };
 		100A735512586EFD00F229AB /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 100A734A12586EFD00F229AB /* index.html */; };
+		100F8C8412C416FF00022C94 /* GrowlImplementation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 100F8C8212C416FF00022C94 /* GrowlImplementation.h */; };
+		100F8C8512C416FF00022C94 /* GrowlImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 100F8C8312C416FF00022C94 /* GrowlImplementation.m */; };
 		101FE72B12823148003B229C /* FullscreenWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 101FE72A12823148003B229C /* FullscreenWindow.m */; };
 		104869EC127DE0D600447F01 /* LockItHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 104869E3127DE0D600447F01 /* LockItHTTPConnection.m */; };
 		104869ED127DE0D600447F01 /* LockItHTTPServerSetup.m in Sources */ = {isa = PBXBuildFile; fileRef = 104869E5127DE0D600447F01 /* LockItHTTPServerSetup.m */; };
@@ -60,6 +62,7 @@
 				10A1EEFE12A2F128006AC445 /* Growl.framework in CopyFiles */,
 				10B06CD412AA621100D69F37 /* PreferencesModel.h in CopyFiles */,
 				10B06CE012AA65B700D69F37 /* LockState.h in CopyFiles */,
+				100F8C8412C416FF00022C94 /* GrowlImplementation.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +90,8 @@
 		100A734712586EFD00F229AB /* SSCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSCrypto.h; sourceTree = "<group>"; };
 		100A734812586EFD00F229AB /* SSCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSCrypto.m; sourceTree = "<group>"; };
 		100A734A12586EFD00F229AB /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		100F8C8212C416FF00022C94 /* GrowlImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrowlImplementation.h; sourceTree = "<group>"; };
+		100F8C8312C416FF00022C94 /* GrowlImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GrowlImplementation.m; sourceTree = "<group>"; };
 		101FE72912823148003B229C /* FullscreenWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullscreenWindow.h; sourceTree = "<group>"; };
 		101FE72A12823148003B229C /* FullscreenWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullscreenWindow.m; sourceTree = "<group>"; };
 		104869E2127DE0D600447F01 /* LockItHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LockItHTTPConnection.h; path = Classes/LockItHTTPConnection.h; sourceTree = "<group>"; };
@@ -298,6 +303,8 @@
 			children = (
 				10783440128F027100E85944 /* DataModel.h */,
 				10783441128F027100E85944 /* DataModel.m */,
+				100F8C8212C416FF00022C94 /* GrowlImplementation.h */,
+				100F8C8312C416FF00022C94 /* GrowlImplementation.m */,
 				10B06CD212AA621100D69F37 /* PreferencesModel.h */,
 				10B06CD312AA621100D69F37 /* PreferencesModel.m */,
 				10B06CDE12AA65B700D69F37 /* LockState.h */,
@@ -394,6 +401,7 @@
 				107179DF12A6FEF900413942 /* BorderlessWindow.m in Sources */,
 				10B06CD512AA621100D69F37 /* PreferencesModel.m in Sources */,
 				10B06CE112AA65B700D69F37 /* LockState.m in Sources */,
+				100F8C8512C416FF00022C94 /* GrowlImplementation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,14 +10,13 @@
 #import "LockItHTTPConnection.h"
 
 @implementation DataModel
-@synthesize dataArray, response, devInfoDict, searchArray, uuid;
+@synthesize dataArray, response, devInfoDict, searchArray, uuid, lastCommand;
 
-
+// Init this class
 - (id)init {
     if ((self = [super init])) {
-        // Initialization code here.
-        self.dataArray = [[NSMutableArray alloc]init];
         
+        self.dataArray = [[NSMutableArray alloc]init];
         self.uuid = [self setHostUUID];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -45,43 +44,73 @@
 													 name:@"getUUID"
 												   object:nil]; 
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(sendCommand:)
+													 name:@"returnTargetDict"
+												   object:nil]; 
+        
     }
     
     return self;
 }
 
+// Get the UUID of current process and make it able for http
 -(NSString *)setHostUUID{
     NSString *cache = [[NSProcessInfo processInfo] globallyUniqueString];
     NSString *string = [cache stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     return string;
 }
 
+// Send own UUI by NSNotification
 -(void)sendUUID:(NSNotification *)notification{
-     NSLog(@"Data- UUID: %@",self.uuid);
     NSDictionary *dict = [NSDictionary dictionaryWithObject:self.uuid forKey:@"uuid"];
    
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:@"broadcastUUID"
+    [center postNotificationName:@"recieveUUID"
                           object:self
                         userInfo:dict];
 }
 
-
-- (void)addDevice:(NSNotification *)notification{
+// Receive any http-request to clients by NSNotifications and send the 'get data by UUID' notification
+-(void)receivingCommand:(NSNotification *)notification{
+    NSString *command = [[notification userInfo] objectForKey:@"command"];
+    NSString *deviceUUID = [[notification userInfo] objectForKey:@"uuid"];
     
-    NSDictionary *deviceInfoDict = [notification userInfo];
+    self.lastCommand = command;
+    NSLog(@"lastCommand: %@",command);
     
-    [self.dataArray addObject:deviceInfoDict];
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys: deviceUUID, @"uuid", nil];
+    
+    NSNotificationCenter * center;
+    center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:@"getDeviceFromUUID"
+                          object:self
+                        userInfo:dict];
     
 }
 
+// Send any http-request to clients command from here in order to minimize errors
+-(void)sendCommand:(NSNotification *)notification{
+    NSString *deviceHostname = [[notification userInfo] objectForKey:@"deviceHostname"];
+    NSNumber *devicePort = [[notification userInfo] objectForKey:@"devicePort"];
+    NSLog(@"lastCommand: %@",self.lastCommand);
+    NSString *urlString = [NSString stringWithFormat:@"http://%@:%i/%@/%@", deviceHostname, [devicePort integerValue],self.uuid,self.lastCommand];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+}
+
+// Add device when in bonjour range to dataArray
+- (void)addDevice:(NSNotification *)notification{
+    NSDictionary *deviceInfoDict = [notification userInfo];
+    [self.dataArray addObject:deviceInfoDict];
+}
+
+// Remove Device when out of bonjour range from dataArray
 -(void)removeDevice:(NSNotification *)notification{
     
     NSDictionary *deviceInfoDict = [notification userInfo];
-    
     NSDictionary *currentDict = [[NSDictionary alloc]init];
-    
     NSInteger position = 0;
     
     for(currentDict in self.dataArray){
@@ -95,12 +124,13 @@
         
     }
     
+    // DOESNT WORK: CRASH!
  //   [self.dataArray removeObjectAtIndex:position];
     
 }
 
+// Send all data from dataArray with NSNotification
 -(void)sendAllClients:(NSNotification *)notification{
-    
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:dataArray, @"dataArray",nil];
     
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
@@ -108,16 +138,12 @@
     [center postNotificationName:@"sendAllClients"
                           object:self
                         userInfo:dict];
-    
 }
 
-
+// Send dict with data of an entry of the dataArray which matches the given UUID
 - (void)getDeviceFromUUID:(NSNotification *)notification{ 
-
     NSString *UUID =  [[notification userInfo] valueForKey:@"uuid"];
-    
     devInfoDict = [[NSDictionary alloc]init];
-    
     NSDictionary *currentDict = [[NSDictionary alloc]init];
     
     for(currentDict in self.dataArray){
@@ -143,7 +169,6 @@
     
     [[LockItHTTPConnection alloc]init];
     
-    
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"returnTargetDict"
@@ -151,13 +176,11 @@
                         userInfo:devInfoDict];
     
     [currentDict retain];
-    
 }
 
-
+// Release memory
 - (void)dealloc {
-    // Clean-up code here.
-    
+    [lastCommand release];
     [uuid release];
     [connection release];
     [devInfoDict release];

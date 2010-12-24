@@ -9,7 +9,7 @@
 
 #import "NetworkService.h"
 #import "DataModel.h"
-#import "Growl/GrowlApplicationBridge.h"
+#import "GrowlImplementation.h"
 
 @implementation NetworkService
 @synthesize response, requestWindow, deviceInfo, otherSender, uuid;
@@ -23,8 +23,6 @@
 		[serviceBrowser searchForServicesOfType:@"_lockitiphone._tcp." inDomain:@""];
 		self.response = [NSMutableData data];
         
-        [GrowlApplicationBridge setGrowlDelegate:self];
-        
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(setHostUUID:)
 													 name:@"setUUID"
@@ -34,42 +32,7 @@
 	return self;
 }
 
--(void)sendGrowlNotifications:(NSString *)title: (NSString *)dexcription: (NSString *)notificationName{
-	
-    [GrowlApplicationBridge notifyWithTitle:title
-                                description:dexcription
-                           notificationName:notificationName
-                                   iconData:nil
-                                   priority:1
-                                   isSticky:NO
-                               clickContext:nil]; 
-    
-}
 
-- (NSDictionary*) registrationDictionaryForGrowl{
-    
-    NSArray* defaults = 
-    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
-    
-    NSArray* all = 
-    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
-    
-    NSDictionary* growlRegDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  defaults, GROWL_NOTIFICATIONS_DEFAULT,all,
-                                  GROWL_NOTIFICATIONS_ALL, nil];
-    
-    return growlRegDict;
-}
-
-- (NSImage*) applicationIconForGrowl
-{
-    NSString* imageName =
-    [[NSBundle mainBundle]pathForResource:@"Extra Bonjour" ofType:@"png"];
-	
-    NSImage* tempImage = 
-    [[[NSImage alloc] initWithContentsOfFile:imageName]autorelease];
-    return tempImage;
-}
 
 -(void)setHostUUID:(NSNotification *)notification{
     self.uuid = [[notification userInfo]objectForKey:@"uuid"];
@@ -88,9 +51,8 @@
     [otherSender release];
 	[serviceBrowser release];
     [deviceInfo release];
-	
-	self.response = nil;
-    self.requestWindow = nil;
+	[response release];
+    [requestWindow release];
 
 	[super dealloc];
 }
@@ -129,7 +91,7 @@
 	NSString *cache1 = [NSString stringWithFormat:@"%@ %@", [aNetService name], @"connected"];
 //	NSString *cache2 = [NSString stringWithFormat:@"%@ %@\n%@\n%@", [aNetService name], @"connected", [aNetService hostName], [aNetService port]];
 	
-	[self sendGrowlNotifications:[aNetService name] :cache1 :@"Go on/off"];
+    [GrowlImplementation sendGrowlNotifications:[aNetService name] :cache1 :@"Connect/Disconnect notifications":@"Extra Bonjour.png"];
  //   [self sendGrowlNotifications:[aNetService name] :cache2 :@"Go on/off detail"];
 	
 	[aNetService setDelegate:self];
@@ -144,7 +106,8 @@
 	
 	NSString *cache1 = [NSString stringWithFormat:@"%@ %@", [aNetService name], @"disconnected"];
 	
-	[self sendGrowlNotifications:[aNetService name] :cache1 :@"Go on/off"];
+	//[self sendGrowlNotifications:[aNetService name] :cache1 :@"Go on/off"];
+    [GrowlImplementation sendGrowlNotifications:[aNetService name] :cache1 :@"Connect/Disconnect notifications":@"Extra Bonjour.png"];
     
 //	NSLog(@"Lost  NetService: %@", [aNetService name]);
     
@@ -169,6 +132,7 @@
 	
 	}
 
+// NetService didn't resolve the request. Push a growl notification
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict {
     [self handleError:[errorDict objectForKey:NSNetServicesErrorCode]];
     NSLog(@"fail: DID NOT RESOLVE!");
@@ -192,19 +156,19 @@ didReceiveResponse:(NSURLResponse *)urlResponse {
     [self.response appendData:data];
 }
 
+// An error occured by NSURLConnection
 - (void)connection:(NSURLConnection *)connection
   didFailWithError:(NSError *)error {
-	// An error occured
     NSLog(@"%@",[error localizedDescription]);
     NSString *cache1 = [NSString stringWithFormat:@"%@\n%@",@"Error to connect to an client",[error localizedDescription]] ;
 	NSLog(@"%@",[error localizedDescription]);
 	[self sendGrowlNotifications:@"Error" :cache1 :@"Go on/off"];
 }
 
+// Connection finished loading. Add the device to dataArray by NSNotification. Once this method is invoked, "serverResponse" contains the complete result
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    // Once this method is invoked, "serverResponse" contains the complete result
-	NSPropertyListFormat format;
     
+	NSPropertyListFormat format;
     NSDictionary *dict =  [NSPropertyListSerialization propertyListFromData:self.response mutabilityOption:0 format:&format errorDescription:nil];
     
     NSDictionary *devInfo  = [NSDictionary dictionaryWithObjectsAndKeys:[otherSender name], @"deviceName", [otherSender hostName], @"deviceHostname", [NSNumber numberWithInteger:[otherSender port]], @"devicePort", [dict objectForKey:@"uuid"], @"deviceUUID", nil];
@@ -214,9 +178,48 @@ didReceiveResponse:(NSURLResponse *)urlResponse {
 	[center postNotificationName:@"addDevice"
 						  object:self
 						userInfo:devInfo];
-    
+}
+
+
+// Some Growl methods
+
+// Local method to send a notification by Growl
+-(void)sendGrowlNotifications:(NSString *)title: (NSString *)description: (NSString *)notificationName{
+	
+    [GrowlApplicationBridge notifyWithTitle:title
+                                description:description
+                           notificationName:notificationName
+                                   iconData:nil
+                                   priority:1
+                                   isSticky:NO
+                               clickContext:nil]; 
     
 }
 
+// Growl implementation methods
+- (NSDictionary*) registrationDictionaryForGrowl{
+    
+    NSArray* defaults = 
+    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
+    
+    NSArray* all = 
+    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
+    
+    NSDictionary* growlRegDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  defaults, GROWL_NOTIFICATIONS_DEFAULT,all,
+                                  GROWL_NOTIFICATIONS_ALL, nil];
+    
+    return growlRegDict;
+}
+
+- (NSImage*) applicationIconForGrowl
+{
+    NSString* imageName =
+    [[NSBundle mainBundle]pathForResource:@"Extra Bonjour" ofType:@"png"];
+	
+    NSImage* tempImage = 
+    [[[NSImage alloc] initWithContentsOfFile:imageName]autorelease];
+    return tempImage;
+}
 
 @end

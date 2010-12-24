@@ -13,4 +13,6 @@
 	HTTPServer *httpServer;
 }
 
+-(void)startWebServer;
+
 @end

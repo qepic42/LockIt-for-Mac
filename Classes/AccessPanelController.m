@@ -10,6 +10,7 @@
 #import "LockScreenView.h"
 #import <QuartzCore/CoreAnimation.h>
 #import <ScreenSaver/ScreenSaver.h>
+#import "GrowlImplementation.h"
 
 @implementation AccessPanelController
 @synthesize deviceName,devicePort,deviceUUID,deviceHostname,deviceLockDelay, uuid;
@@ -27,7 +28,7 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(setHostUUID:)
-													 name:@"broadcastUUID"
+													 name:@"recieveUUID"
 												   object:nil]; 
 	}
 	return self;
@@ -106,14 +107,18 @@
     [window setAlphaValue:0.1];
     */
     
-	NSSound *mySound = [NSSound soundNamed:@"WantAccessSound"];
-    [mySound play];
-    
-	self.deviceName = [[notification userInfo] valueForKey:@"deviceName"];
+    self.deviceName = [[notification userInfo] valueForKey:@"deviceName"];
     self.deviceHostname = [[notification userInfo] valueForKey:@"deviceHostname"];
     self.deviceUUID = [[notification userInfo] valueForKey:@"deviceUUID"];
     self.deviceLockDelay = [[notification userInfo] valueForKey:@"deviceStartLockTime"];
     self.devicePort = [[notification userInfo]valueForKey:@"devicePort"];
+    
+    [GrowlImplementation sendGrowlNotifications:self.deviceName :(@"%@ want access",self.deviceName) :@"HTTP-Request notifications" :@""];
+    
+	NSSound *mySound = [NSSound soundNamed:@"WantAccessSound"];
+    [mySound play];
+    
+	
     
     NSLog(@"Data: %@:%@",self.deviceName, self.devicePort);
     
@@ -138,10 +143,18 @@
     
     [window orderOut:nil];
     
+    NSString *command = @"accessAllowed";
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:self.uuid,@"uuid", command, @"command", nil];
+    
+    NSNotificationCenter * center;
+    center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:@"returnTargetDict"
+                          object:dict];
+    /*
     NSString *urlString = [NSString stringWithFormat:@"http://%@:%i/%i/accessAllowed", self.deviceHostname, [self.devicePort integerValue],[self.uuid integerValue]];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
-  
+  */
     [requestWindow orderOut:self];
     
 }
@@ -150,10 +163,19 @@
     
     [window orderOut:self];
     
+    NSString *command = @"accessDenyed";
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:self.uuid,@"uuid", command, @"command", nil];
+    
+    NSNotificationCenter * center;
+    center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:@"returnTargetDict"
+                          object:dict];
+    /*
     NSString *urlString   = [NSString stringWithFormat:@"http://%@:%i/%i/accessDenyed", self.deviceHostname, [self.devicePort integerValue],[self.uuid integerValue]];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
-    
+    */
+     
     [requestWindow orderOut:self];
     
 }

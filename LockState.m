@@ -44,7 +44,7 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(setHostUUID:)
-													 name:@"broadcastUUID"
+													 name:@"recieveUUID"
 												   object:nil]; 
 
         

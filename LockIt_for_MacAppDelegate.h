@@ -13,6 +13,8 @@
 #import "DataModel.h"
 #import "PreferencesModel.h"
 #import "LockState.h"
+#import "LockItHTTPServerSetup.h"
+#import "GrowlImplementation.h"
 
 @class HTTPServer, AccessPanelController;
 
@@ -26,6 +28,8 @@
 	HTTPServer *httpServer;
     LockState *lockState;
     PreferencesModel *prefModel;
+    LockItHTTPServerSetup *setupServerClass;
+    GrowlImplementation *growl;
     
     NSWindow *window;
 }

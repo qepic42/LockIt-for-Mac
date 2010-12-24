@@ -29,6 +29,6 @@
 
 -(void)setHostUUID:(NSNotification *)notification;
 -(void)getHostUUID;
--(void)sendGrowlNotifications:(NSString *)title: (NSString *)dexcription: (NSString *)notificationName;
+-(void)sendGrowlNotifications:(NSString *)title: (NSString *)description: (NSString *)notificationName;
 
 @end
