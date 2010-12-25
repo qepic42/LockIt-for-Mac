@@ -18,6 +18,7 @@
         
         self.dataArray = [[NSMutableArray alloc]init];
         self.uuid = [self setHostUUID];
+        self.lastCommand = @"Initialization";
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(addDevice:)
@@ -61,7 +62,7 @@
     return string;
 }
 
-// Send own UUI by NSNotification
+// Send own UUID by NSNotification
 -(void)sendUUID:(NSNotification *)notification{
     NSDictionary *dict = [NSDictionary dictionaryWithObject:self.uuid forKey:@"uuid"];
    
@@ -110,7 +111,7 @@
 -(void)removeDevice:(NSNotification *)notification{
     
     NSDictionary *deviceInfoDict = [notification userInfo];
-    NSDictionary *currentDict = [[NSDictionary alloc]init];
+    currentDict = [[NSDictionary alloc]init];
     NSInteger position = 0;
     
     for(currentDict in self.dataArray){
@@ -134,7 +135,6 @@
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:dataArray, @"dataArray",nil];
     
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"sendAllClients"
                           object:self
                         userInfo:dict];
@@ -144,7 +144,7 @@
 - (void)getDeviceFromUUID:(NSNotification *)notification{ 
     NSString *UUID =  [[notification userInfo] valueForKey:@"uuid"];
     devInfoDict = [[NSDictionary alloc]init];
-    NSDictionary *currentDict = [[NSDictionary alloc]init];
+    currentDict = [[NSDictionary alloc]init];
     
     for(currentDict in self.dataArray){
         
@@ -167,19 +167,22 @@
         
     }
     
-    [[LockItHTTPConnection alloc]init];
+    [[[LockItHTTPConnection alloc]init]autorelease];
     
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"returnTargetDict"
                           object:self
                         userInfo:devInfoDict];
     
-    [currentDict retain];
+    
 }
 
 // Release memory
 - (void)dealloc {
+    
+    NSLog(@"DataModel: dealloc");
+    
+    [currentDict release];
     [lastCommand release];
     [uuid release];
     [connection release];

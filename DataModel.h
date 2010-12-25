@@ -15,6 +15,7 @@
     NSString *uuid;
     NSURLConnection *connection;
     NSString *lastCommand;
+    NSDictionary *currentDict;
     
 }
 

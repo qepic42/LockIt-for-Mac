@@ -8,9 +8,8 @@
 
 
 #import <Foundation/Foundation.h>
-#import "Growl/GrowlApplicationBridge.h"
 
-@interface NetworkService : NSObject <GrowlApplicationBridgeDelegate>  {
+@interface NetworkService : NSObject  {
 	NSNetServiceBrowser *serviceBrowser;
 	NSMutableData *response;
     NSMutableArray *deviceInfo;
@@ -29,6 +28,5 @@
 
 -(void)setHostUUID:(NSNotification *)notification;
 -(void)getHostUUID;
--(void)sendGrowlNotifications:(NSString *)title: (NSString *)description: (NSString *)notificationName;
 
 @end

@@ -1,7 +1,7 @@
 //
 //  LockIt_for_MacAppDelegate.m
 //  LockIt for Mac
-//
+//	
 //  Created by Q on 25.09.10.
 //  Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 //

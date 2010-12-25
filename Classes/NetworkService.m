@@ -17,17 +17,16 @@
 - (id) init {
 	self = [super init];
 	if (self != nil) {
-        [self getHostUUID];
-		serviceBrowser = [[NSNetServiceBrowser alloc] init];
+        serviceBrowser = [[NSNetServiceBrowser alloc] init];
 		[serviceBrowser setDelegate:self];
 		[serviceBrowser searchForServicesOfType:@"_lockitiphone._tcp." inDomain:@""];
 		self.response = [NSMutableData data];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(setHostUUID:)
-													 name:@"setUUID"
+													 name:@"recieveUUID"
 												   object:nil];
-		
+        [self getHostUUID];
 	}
 	return self;
 }
@@ -36,7 +35,6 @@
 
 -(void)setHostUUID:(NSNotification *)notification{
     self.uuid = [[notification userInfo]objectForKey:@"uuid"];
-    NSLog(@"Net- UUID: %@",self.uuid);
 }
 
 -(void)getHostUUID{
@@ -123,21 +121,19 @@
 
 // NetService is now ready to be used
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
-    
+    NSLog(@"NetService-UUID: %@",self.uuid);
     NSString *urlString   = [NSString stringWithFormat:@"http://%@:%i/%@/identify", [sender hostName], [sender port], self.uuid];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-
     self.otherSender = sender;
-	
-	}
+}
 
 // NetService didn't resolve the request. Push a growl notification
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict {
     [self handleError:[errorDict objectForKey:NSNetServicesErrorCode]];
     NSLog(@"fail: DID NOT RESOLVE!");
     NSString *cache1 = [NSString stringWithFormat:@"%@\n%@",@"Error to connect to an client",[[errorDict objectForKey:NSNetServicesErrorCode] localizedDescription]] ;
-    [self sendGrowlNotifications:@"Error" :cache1 :@"Go on/off"];
+    [GrowlImplementation sendGrowlNotifications:@"Error" :cache1 :@"Go on/off":@"Extra Bonjour.png"];
 	[sender release];
 }
 
@@ -162,7 +158,7 @@ didReceiveResponse:(NSURLResponse *)urlResponse {
     NSLog(@"%@",[error localizedDescription]);
     NSString *cache1 = [NSString stringWithFormat:@"%@\n%@",@"Error to connect to an client",[error localizedDescription]] ;
 	NSLog(@"%@",[error localizedDescription]);
-	[self sendGrowlNotifications:@"Error" :cache1 :@"Go on/off"];
+	[GrowlImplementation sendGrowlNotifications:@"Error" :cache1 :@"Go on/off":@"Extra Bonjour.png"];
 }
 
 // Connection finished loading. Add the device to dataArray by NSNotification. Once this method is invoked, "serverResponse" contains the complete result
@@ -178,48 +174,6 @@ didReceiveResponse:(NSURLResponse *)urlResponse {
 	[center postNotificationName:@"addDevice"
 						  object:self
 						userInfo:devInfo];
-}
-
-
-// Some Growl methods
-
-// Local method to send a notification by Growl
--(void)sendGrowlNotifications:(NSString *)title: (NSString *)description: (NSString *)notificationName{
-	
-    [GrowlApplicationBridge notifyWithTitle:title
-                                description:description
-                           notificationName:notificationName
-                                   iconData:nil
-                                   priority:1
-                                   isSticky:NO
-                               clickContext:nil]; 
-    
-}
-
-// Growl implementation methods
-- (NSDictionary*) registrationDictionaryForGrowl{
-    
-    NSArray* defaults = 
-    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
-    
-    NSArray* all = 
-    [NSArray arrayWithObjects:@"Go on/off", @"Go on/off detail", nil];
-    
-    NSDictionary* growlRegDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  defaults, GROWL_NOTIFICATIONS_DEFAULT,all,
-                                  GROWL_NOTIFICATIONS_ALL, nil];
-    
-    return growlRegDict;
-}
-
-- (NSImage*) applicationIconForGrowl
-{
-    NSString* imageName =
-    [[NSBundle mainBundle]pathForResource:@"Extra Bonjour" ofType:@"png"];
-	
-    NSImage* tempImage = 
-    [[[NSImage alloc] initWithContentsOfFile:imageName]autorelease];
-    return tempImage;
 }
 
 @end

@@ -15,7 +15,7 @@
     BOOL macIsLocked;
     
 	NSString *UUID;
-	
+	NSDictionary *currentDict;
     NSString *deviceName;
     NSString *deviceHostname;
     NSString *deviceUUID;

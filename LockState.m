@@ -86,7 +86,7 @@
 
 -(void)sendLockState:(NSNotification *)notification{
     
-    NSDictionary *currentDict = [[NSDictionary alloc]init];
+     currentDict = [[NSDictionary alloc]init];
     
     for(currentDict in [[notification userInfo]objectForKey:@"dataArray"]){
         
@@ -114,14 +114,14 @@
     }
     
         
-    [currentDict release];
+    
 }
 
 - (void)dealloc {
     // Clean-up code here.
     
 	[UUID release];
-	
+	[currentDict release];
     [deviceName release];
     [deviceHostname release];
     [deviceUUID release];

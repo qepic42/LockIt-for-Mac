@@ -17,10 +17,7 @@
 
 - (id)init {
     if ((self = [super init])) {        
-  
-        [self getHostUUID];
-        
-        NSLog(@"HTTP.Connection: init");
+        NSLog(@"LockItHTTPConnection: init");
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(sendCommands:)
@@ -31,8 +28,7 @@
 												 selector:@selector(setHostUUID:)
 													 name:@"broadcastUUID"
 												   object:nil]; 
-        
-        
+        [self getHostUUID];
     }
     return self;
 }
@@ -106,14 +102,11 @@
                                                object:nil]; 
     
     while (self.uuid == 0){
-        NSLog(@"UUID FAIL");
+//        NSLog(@"LockItHTTPConnection: UUID is still 0! %@",self.uuid);
       [self getHostUUID];  
     }
+    NSLog(@"LockItHTTPConnection: UUID: %@",self.uuid);
     
-    
-    NSLog(@"Host UUID: %@!",self.uuid);
-    
-   
     NSString *error = nil;
 	HTTPDataResponse* response = nil;
 	
@@ -124,7 +117,7 @@
     self.commandString = command;
     self.lockDelayString = [listItems objectAtIndex:2];
     
-    NSLog(@"Command: %@",self.commandString);
+    NSLog(@"LockItHTTPConnection: Command: %@",self.commandString);
     
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:command 
 																   forKey:@"command"];
@@ -135,7 +128,11 @@
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         self.macIsLocked = [prefs boolForKey:@"lockState"];
         
-     //   NSLog(@"BOOL = %d", (int)self.macIsLocked);
+        if (self.macIsLocked == 0){
+            NSLog(@"LockItHTTPConnection: Mac is not locked");
+        }else{
+            NSLog(@"LockItHTTPConnection: Mac is locked!!");
+        }
         
         [dict setObject:[NSNumber numberWithBool:self.macIsLocked] forKey:@"lockState"];
         [dict setObject:self.uuid forKey:@"uuid"];
@@ -186,9 +183,9 @@
     NSLog(@"Command: %@",self.commandString);
     
     // Check for hacks
-//    if ([[notification userInfo] count] == 0){
-//        NSLog(@"Non bonjour client alert!!");
-//    }else{
+    if ([[notification userInfo] count] == 0){
+        NSLog(@"Non bonjour client alert!!");
+    }else{
         
         
         // Lock Command
@@ -258,7 +255,7 @@
         }
         
         
-//    }
+    }
     
     
 }
@@ -266,6 +263,7 @@
 
 
 - (void)dealloc {
+    NSLog(@"LockItHTTPConnection: dealloc!");
     [uuid release];
     [lockedUUID release];
     [lockDelayString release];

@@ -15,12 +15,9 @@
 @implementation AccessPanelController
 @synthesize deviceName,devicePort,deviceUUID,deviceHostname,deviceLockDelay, uuid;
 
-- (id) init
-{
+- (id) init{
 	self = [super init];
 	if (self != nil) {
-        
-        [self getHostUUID];
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(displayRequestPanel:)
 													 name:@"deviceSentRequest"
@@ -30,6 +27,7 @@
 												 selector:@selector(setHostUUID:)
 													 name:@"recieveUUID"
 												   object:nil]; 
+        [self getHostUUID];
 	}
 	return self;
 }
@@ -112,15 +110,17 @@
     self.deviceUUID = [[notification userInfo] valueForKey:@"deviceUUID"];
     self.deviceLockDelay = [[notification userInfo] valueForKey:@"deviceStartLockTime"];
     self.devicePort = [[notification userInfo]valueForKey:@"devicePort"];
+	
+	NSString *cache = [NSString stringWithFormat:@"%@ %@",self.deviceName, @"want access"];
     
-    [GrowlImplementation sendGrowlNotifications:self.deviceName :(@"%@ want access",self.deviceName) :@"HTTP-Request notifications" :@""];
+    [GrowlImplementation sendGrowlNotifications:self.deviceName :cache :@"HTTP-Request notifications" :@""];
     
 	NSSound *mySound = [NSSound soundNamed:@"WantAccessSound"];
     [mySound play];
     
 	
     
-    NSLog(@"Data: %@:%@",self.deviceName, self.devicePort);
+//    NSLog(@"Data: %@:%@",self.deviceName, self.devicePort);
     
 	NSString *request = [NSString stringWithFormat:@"%@ »%@« %@", @"Device", self.deviceName, @"want to get access of this Mac.\nIf you'll allow it can lock and unlock this Mac everytime."];
 	
@@ -146,15 +146,17 @@
     NSString *command = @"accessAllowed";
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:self.uuid,@"uuid", command, @"command", nil];
     
+    NSLog(@"AccessPanelController-Command: %@",[dict objectForKey:@"command"]);
+    
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:@"returnTargetDict"
                           object:dict];
-    /*
-    NSString *urlString = [NSString stringWithFormat:@"http://%@:%i/%i/accessAllowed", self.deviceHostname, [self.devicePort integerValue],[self.uuid integerValue]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
-  */
+  
+    // Dict ist hier noch i.O. 
+    // Beim Aufruf dieser Methode wird beim Senden 'returnTargetDict' ein EXC_BAD_ACCESS angezeigt
+    // Ankommen in der Zielmethode tut nur ein leeres Dict
+    
     [requestWindow orderOut:self];
     
 }
@@ -165,6 +167,8 @@
     
     NSString *command = @"accessDenyed";
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:self.uuid,@"uuid", command, @"command", nil];
+    
+    NSLog(@"AccessPanelController-Command: %@",[dict objectForKey:@"command"]);
     
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];

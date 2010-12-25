@@ -25,7 +25,7 @@
 +(void)sendGrowlNotifications:(NSString *)title: (NSString *)description: (NSString *)notificationName: (NSString *)imagePath{
     
     if ([imagePath isEqualToString: @""]){
-        NSLog(@"No image available");
+  //      NSLog(@"No image available");
          
         [GrowlApplicationBridge notifyWithTitle:title
                                     description:description
