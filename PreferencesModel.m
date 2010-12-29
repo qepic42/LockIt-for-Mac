@@ -14,34 +14,22 @@
 
 - (id)init {
     if ((self = [super init])) {
-        // Initialization code here.
         self.macIsLocked = NO;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(changeLockState:)
-													 name:@"changeLockState"
-												   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(getLockState:)
-													 name:@"getLockState"
-												   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(changeLockState:)
-													 name:@"lockScreen"
-												   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(changeLockState:)
-													 name:@"unlockScreen"
-												   object:nil];
+        [self addAllNotificationObersers];
     }
-    
     return self;
 }
 
+
+// Save data to NSUserDefaults
+-(void)saveData:(NSNotification *)notification{
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:[[notification userInfo]objectForKey:@"saveObject"] forKey:[[notification userInfo]objectForKey:@"saveString"]];
+    [prefs synchronize];
+}
+
+// Send LockSate by NSNotification
 -(void)getLockState:(NSNotification *)notification{
-    
     NSDictionary *mergedDicts = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:self.macIsLocked], @"lockState", [notification userInfo], @"deviceInfoDict",nil];
     
     NSNotificationCenter * center;
@@ -49,16 +37,38 @@
     [center postNotificationName:@"lockState"
                           object:self
                         userInfo:mergedDicts];
-    
 }
 
+// Change LockState by NSNotification
 -(void)changeLockState:(NSNotification *)notification{
     self.macIsLocked = [[[notification userInfo]objectForKey:@"lockState"] boolValue];
-    
+}
+
+// Add NSNotificationObservers
+-(void)addAllNotificationObersers{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(changeLockState:)
+                                                 name:@"changeLockState"
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(getLockState:)
+                                                 name:@"getLockState"
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(changeLockState:)
+                                                 name:@"lockScreen"
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(changeLockState:)
+                                                 name:@"unlockScreen"
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(saveData:)
+                                                 name:@"saveData"
+                                               object:nil];
 }
 
 - (void)dealloc {
-    // Clean-up code here.
     
     [super dealloc];
 }

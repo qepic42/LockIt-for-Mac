@@ -31,6 +31,9 @@
     LockItHTTPServerSetup *setupServerClass;
     GrowlImplementation *growl;
     
+    NSString *backgroundImageName;
+    NSString *soundFileName;
+    
     NSWindow *window;
 }
 

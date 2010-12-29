@@ -18,5 +18,7 @@
 
 -(void)getLockState:(NSNotification *)notification;
 -(void)changeLockState:(NSNotification *)notification;
+-(void)saveData:(NSNotification *)notification;
+-(void)addAllNotificationObersers;
 
 @end

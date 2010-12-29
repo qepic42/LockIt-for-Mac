@@ -116,7 +116,7 @@
     [GrowlImplementation sendGrowlNotifications:self.deviceName :cache :@"HTTP-Request notifications" :@""];
     
 	NSSound *mySound = [NSSound soundNamed:@"WantAccessSound"];
-    [mySound play];
+ //   [mySound play];
     
 	
     
@@ -146,11 +146,15 @@
     NSString *command = @"accessAllowed";
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:self.uuid,@"uuid", command, @"command", nil];
     
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:command forKey:@"lastCommand"];
+    [prefs synchronize];
+    
     NSLog(@"AccessPanelController-Command: %@",[dict objectForKey:@"command"]);
     
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:@"returnTargetDict"
+    [center postNotificationName:@"returnRequestData"
                           object:dict];
   
     // Dict ist hier noch i.O. 
@@ -172,7 +176,7 @@
     
     NSNotificationCenter * center;
     center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:@"returnTargetDict"
+    [center postNotificationName:@"returnRequestData"
                           object:dict];
     /*
     NSString *urlString   = [NSString stringWithFormat:@"http://%@:%i/%i/accessDenyed", self.deviceHostname, [self.devicePort integerValue],[self.uuid integerValue]];

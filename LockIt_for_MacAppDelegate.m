@@ -39,10 +39,22 @@
         [GrowlImplementation sendGrowlNotifications:@"LockIt" :@"LockIt for Mac started" :@"General notifications":@""];
 	}
 	return self;
+    
+//    LockIt_for_MacAppDelegate *lockItAppDelegate = (LockIt_for_MacAppDelegate *)[[NSApplication sharedApplication] delegate];
+   
 }
 
-- (void) dealloc
-{
+-(void)setupOberserver{
+    [self addObserver:self
+           forKeyPath:@""
+              options:0
+              context:NULL];
+}
+
+- (void) dealloc{
+    
+    NSLog(@"AppDelegate: dealloc!");
+    
     [growl release];
     [lockItCon release];
     [setupServerClass release]; 

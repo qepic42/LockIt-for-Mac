@@ -105,7 +105,7 @@
 //        NSLog(@"LockItHTTPConnection: UUID is still 0! %@",self.uuid);
       [self getHostUUID];  
     }
-    NSLog(@"LockItHTTPConnection: UUID: %@",self.uuid);
+    NSLog(@"LockItHTTPConnection-UUID: %@",self.uuid);
     
     NSString *error = nil;
 	HTTPDataResponse* response = nil;
@@ -180,7 +180,7 @@
     self.lockDelayString = [prefs stringForKey:@"lockDelayString"];
     self.macIsLocked = [prefs boolForKey:@"lockState"];
     
-    NSLog(@"Command: %@",self.commandString);
+    NSLog(@"LockItHTTPConnection-Command: %@",self.commandString);
     
     // Check for hacks
     if ([[notification userInfo] count] == 0){

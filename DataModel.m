@@ -18,7 +18,10 @@
         
         self.dataArray = [[NSMutableArray alloc]init];
         self.uuid = [self setHostUUID];
-        self.lastCommand = @"Initialization";
+        
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setObject:@"" forKey:@"lastCommand"];
+        [prefs synchronize];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(addDevice:)
@@ -47,7 +50,7 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(sendCommand:)
-													 name:@"returnTargetDict"
+													 name:@"returnRequestData"
 												   object:nil]; 
         
     }
@@ -78,8 +81,15 @@
     NSString *command = [[notification userInfo] objectForKey:@"command"];
     NSString *deviceUUID = [[notification userInfo] objectForKey:@"uuid"];
     
+    NSLog(@"DataModel-lastCommand: %@",command);
+    
     self.lastCommand = command;
-    NSLog(@"lastCommand: %@",command);
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:command forKey:@"lastCommand"];
+    [prefs synchronize];
+    
+    NSLog(@"DataModel-lastCommand: %@",command);
     
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys: deviceUUID, @"uuid", nil];
     
@@ -93,9 +103,13 @@
 
 // Send any http-request to clients command from here in order to minimize errors
 -(void)sendCommand:(NSNotification *)notification{
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    self.lastCommand = [prefs stringForKey:@"lastCommand"];
+    
     NSString *deviceHostname = [[notification userInfo] objectForKey:@"deviceHostname"];
     NSNumber *devicePort = [[notification userInfo] objectForKey:@"devicePort"];
-    NSLog(@"lastCommand: %@",self.lastCommand);
+     NSLog(@"DataModel-lastCommand: %@",self.lastCommand);
     NSString *urlString = [NSString stringWithFormat:@"http://%@:%i/%@/%@", deviceHostname, [devicePort integerValue],self.uuid,self.lastCommand];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
@@ -181,6 +195,9 @@
 - (void)dealloc {
     
     NSLog(@"DataModel: dealloc");
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:@"" forKey:@"lastCommand"];
+    [prefs synchronize];
     
     [currentDict release];
     [lastCommand release];
